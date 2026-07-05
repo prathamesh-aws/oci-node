@@ -1,0 +1,12 @@
+{{- if .Values.preDeploymentConfiguration.posture.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: posture-config
+  namespace: {{- toYaml .Release.Namespace | nindent 4 }}
+  labels:
+  {{- include "helm.labels" . | nindent 4 }}
+data:
+  postureDeployment: |-
+{{ .Files.Get "external_templates/posture_deployment.yml" | indent 4 }}
+{{- end }}

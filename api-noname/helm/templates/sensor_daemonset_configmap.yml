@@ -1,0 +1,12 @@
+{{- if .Values.preDeploymentConfiguration.sensor.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sensor-config
+  namespace: {{- toYaml .Release.Namespace | nindent 4 }}
+  labels:
+  {{- include "helm.labels" . | nindent 4 }}
+data:
+  sensorDaemonset: |-
+{{ .Files.Get "external_templates/sensor_daemonset.yml" | indent 4 }}
+{{- end }}

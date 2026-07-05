@@ -1,0 +1,28 @@
+{{- if .Values.enableClusterRole -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: noname-remote-operator-cluster-role
+  labels:
+  {{- include "helm.labels" . | nindent 4 }}
+rules:
+  - apiGroups: [""]
+    resources:
+      - namespaces
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: noname-remote-operator-cluster-role-binding
+  labels:
+  {{- include "helm.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: noname-remote-operator-sa
+    namespace: {{- toYaml .Release.Namespace | nindent 6 }}
+roleRef:
+  kind: ClusterRole
+  name: noname-remote-operator-cluster-role
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

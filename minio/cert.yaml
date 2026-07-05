@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: minio-cert
+  namespace: minio
+spec:
+  secretName: minio-cert-tls
+  dnsNames:
+    - s3.secyour.space
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  duration: 2160h # 90 days
+  renewBefore: 360h # 15 days before expiry
+

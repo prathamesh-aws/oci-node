@@ -1,0 +1,72 @@
+---
+# Source: noname-remote/templates/operator_deployment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noname-remote-operator
+  namespace:
+    noname-security
+  labels:
+    app: noname-remote-operator
+    helm.sh/chart: noname-remote-1.0.0
+    app.kubernetes.io/name: noname-remote
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "1.0.4"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: noname-remote-operator
+      app.kubernetes.io/name: noname-remote
+      app.kubernetes.io/instance: release-name
+  template:
+    metadata:
+      labels:
+        app: noname-remote-operator
+        app.kubernetes.io/name: noname-remote
+        app.kubernetes.io/instance: release-name
+    spec:
+      containers:
+      - env:
+        - name: NOMANAGE_CLIENT_INSIDE_CONTAINER
+          value: "true"
+        - name: MANAGEMENT_HOSTNAME
+          value: "https://ec2-54-81-106-124.compute-1.amazonaws.com/nomanage"
+        - name: NOMANAGE_SECRET
+          value: "d4ff046b292ab8e0407cc9f0b26bb049"
+        - name: NONAME_HTTP_PROXY
+          value: 
+        - name: NONAME_HTTP_PROXY_BASIC_AUTH
+          value: 
+        - name: NONAME_HTTP_PROXY_BEARER_AUTH
+          value: 
+        - name: ENGINE_HTTP_PROXY_BEARER_AUTH_DETAILS
+          value: 
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: "cluster.local"
+        - name: OPERATOR_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: "jfrog.cicd.nonamesec.com/nns-docker/noname-remote-operator:remote-operator-1.0.13"
+        imagePullPolicy: Always
+        name: noname-remote-operator
+        resources:
+          limits:
+            cpu: 2
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 1Gi
+        securityContext:
+          readOnlyRootFilesystem: true
+        volumeMounts:
+          - mountPath: /tmp
+            name: tmp-dir
+      imagePullSecrets:
+      - name: noname-artifactory-credentials
+      serviceAccountName: noname-remote-operator-sa
+      volumes:
+        - name: tmp-dir
+          emptyDir: {}

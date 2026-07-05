@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eramba
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eramba
+  template:
+    metadata:
+      labels:
+        app: eramba
+    spec:
+      containers:
+      - name: eramba
+        image: ghcr.io/eramba/eramba:latest  # Use the official Eramba image or build your own from the repo
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_HOST
+          value: "mysql-service"  # Matches the MySQL service name
+        - name: DB_DATABASE
+          value: "erambadb"
+        - name: DB_USERNAME
+          value: "eramba"
+        - name: DB_PASSWORD
+          value: "erambapass"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "rootpassword"
+        - name: CACHE_URL
+          value: "Redis://?server=redis.db.svc.cluster.local&port=6379&timeout=3"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eramba-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: eramba
+  type: ClusterIP

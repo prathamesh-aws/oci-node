@@ -1,0 +1,79 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: headlamp
+  namespace: kube-system
+spec:
+  ports:
+    - port: 80
+      targetPort: 4466
+  selector:
+    k8s-app: headlamp
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: headlamp
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: headlamp
+  template:
+    metadata:
+      labels:
+        k8s-app: headlamp
+    spec:
+      initContainers:
+        - name: trivy-plugin-downloader
+          image: alpine:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              apk add --no-cache git
+              git clone https://github.com/kubebeam/trivy-headlamp-plugin /plugins/trivy
+          volumeMounts:
+            - name: plugins
+              mountPath: /plugins
+      containers:
+        - name: headlamp
+          image: ghcr.io/headlamp-k8s/headlamp:latest
+          args:
+            - "-in-cluster"
+            - "-plugins-dir=/headlamp/plugins"
+          ports:
+            - containerPort: 4466
+          readinessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /
+              port: 4466
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+          livenessProbe:
+            httpGet:
+              scheme: HTTP
+              path: /
+              port: 4466
+            initialDelaySeconds: 30
+            timeoutSeconds: 30
+          volumeMounts:
+            - name: plugins
+              mountPath: /headlamp/plugins
+      volumes:
+        - name: plugins
+          emptyDir: {}
+      nodeSelector:
+        'kubernetes.io/os': linux
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: headlamp-admin
+  namespace: kube-system
+  annotations:
+    kubernetes.io/service-account.name: "headlamp-admin"
+type: kubernetes.io/service-account-token

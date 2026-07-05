@@ -1,0 +1,19 @@
+https://faun.pub/how-to-forward-kubernetes-logs-to-elasticsearch-elk-using-fluent-bit-and-visualize-it-by-kibana-4b95c881ae26
+
+
+
+#create namespace for fluent-bit
+kubectl create ns fluent-bit
+
+helm repo add fluent https://fluent.github.io/helm-charts
+
+helm upgrade --install fluent-bit  fluent/fluent-bit  --namespace=fluent-bi
+
+helm show values fluent/fluent-bit
+
+kubectl -n fluent-bit get all
+#list config and svc
+kubectl -n fluent-bit get configmap,svc
+
+#edit config map
+kubectl -n fluent-bit edit configmap fluent-bit

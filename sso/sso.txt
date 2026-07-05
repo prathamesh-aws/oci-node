@@ -1,0 +1,25 @@
+helm repo add authentik https://charts.goauthentik.io
+helm repo update
+helm upgrade --install authentik authentik/authentik -f values.yaml
+
+i have created storage class manually as it pg was not able to create the pvc for it
+
+
+
+authentik:
+    secret_key: "YjBa3eohXQ6sZtohl6bczKPfp50lBVFQjwAg9o5LoOrhlWOEJb8bKgFpqwxFJ8cVAJl/elPSkEqH17c9"
+    # This sends anonymous usage-data, stack traces on errors and
+    # performance data to sentry.io, and is fully opt-in
+    error_reporting:
+        enabled: true
+    postgresql:
+        password: "YjBa3eohXQ6sZtohl6bczKPfp50lBVFQjwAg9o5LoOrhlWOEJb8bKgFpqwxFJ8cVAJl/elPSkEqH17c9"
+
+postgresql:
+    enabled: true
+    auth:
+        password: "YjBa3eohXQ6sZtohl6bczKPfp50lBVFQjwAg9o5LoOrhlWOEJb8bKgFpqwxFJ8cVAJl/elPSkEqH17c9"
+redis:
+    enabled: true
+
+

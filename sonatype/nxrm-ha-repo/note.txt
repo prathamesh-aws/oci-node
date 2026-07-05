@@ -1,0 +1,17 @@
+helm repo add sonatype https://sonatype.github.io/helm3-charts/
+
+
+sonatype/nxrm-ha  ----- repo name
+
+
+helm install nexusrepo sonatype/nxrm-ha -f values.yaml --create-namespace -n sonatype --set-file license.licenseSecret.file="sonatype-repository-manager-trial.lic"
+
+ helm upgrade nexusrepo -n sonatype -f values.yaml
+
+helm uninstall nexusrepo -n sonatype
+
+
+#base64 encoding
+
+base64 sonatype-repository-manager-trial.lic
+

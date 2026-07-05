@@ -1,0 +1,10 @@
+helm repo add harbor https://helm.goharbor.io
+helm fetch harbor/harbor --untar
+
+
+https://goharbor.io/docs/2.14.0/install-config/harbor-ha-helm/
+
+
+helm install my-release harbor/
+
+helm upgrade  my-release harbor/

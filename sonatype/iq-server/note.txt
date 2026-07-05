@@ -1,0 +1,8 @@
+
+helm repo add sonatype https://sonatype.github.io/helm3-charts/
+
+helm install --namespace <namespace> <name> --dependency-update <overrides> sonatype/nexus-iq-server-ha
+
+helm install iq sonatype/nexus-iq-server-ha -f values.yaml  -n sonatype
+
+need to create seprate pv before deploying 

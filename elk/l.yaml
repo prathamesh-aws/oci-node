@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2025-02-14T10:51:00Z"
+  labels:
+    common.k8s.elastic.co/type: elasticsearch
+    elasticsearch.k8s.elastic.co/cluster-name: elastic
+  name: elastic-es-http
+  namespace: elastic-system
+  ownerReferences:
+  - apiVersion: elasticsearch.k8s.elastic.co/v1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Elasticsearch
+    name: elastic
+    uid: 7d3c3ade-b182-41a3-a332-fc88bd0bef6d
+  resourceVersion: "1656429"
+  uid: 3f22666c-73e6-4238-a40b-93bcde0e407e
+spec:
+  type: LoadBalancer  # 🔹 Changed from ClusterIP to LoadBalancer
+  selector:
+    common.k8s.elastic.co/type: elasticsearch
+    elasticsearch.k8s.elastic.co/cluster-name: elastic
+  ports:
+  - name: https
+    port: 9200
+    protocol: TCP
+    targetPort: 9200
+  sessionAffinity: None
+status:
+  loadBalancer: {}

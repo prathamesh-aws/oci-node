@@ -1,0 +1,3 @@
+helm repo add milvus https://milvus-io.github.io/milvus-helm/
+
+helm install my-release milvus/milvus --set cluster.enabled=false --set etcd.replicaCount=1 --set minio.mode=standalone --set pulsar.enabled=false

@@ -1,0 +1,96 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: noname-security-sensor
+  labels:
+    app: noname-security-sensor
+spec:
+  selector:
+    matchLabels:
+      app: noname-security-sensor
+  template:
+    metadata:
+      labels:
+        app: noname-security-sensor
+    spec:
+      hostNetwork: true
+      hostPID: true
+      imagePullSecrets:
+        - name: noname-artifactory-credentials
+      serviceAccountName: default
+      containers:
+        - name: noname-security-sensor
+          securityContext:
+            allowPrivilegeEscalation: true
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+                - SYS_NICE
+                - SETFCAP
+                - AUDIT_WRITE
+                - SYS_RESOURCE
+                - SYS_ADMIN
+                - SYS_PTRACE
+                - SETUID
+                - SETGID
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 1001
+          image: jfrog.cicd.nonamesec.com/nns-docker/noname-sensor:3.3.29
+          imagePullPolicy: Always
+          env:
+            - name: ENGINE_URL
+              value: https://ec2-54-81-106-124.compute-1.amazonaws.com/engine
+            - name: GLOG_v
+              value: '0'
+            - name: SHOULD_REMOVE_DUPLICATED
+              value: 'true'
+            - name: SNIFF_INTERFACE
+              value: any
+            - name: SNIFF_SOURCE_INDEX
+              value: '1'
+            - name: SNIFF_SOURCE_KEY
+              value: cc0763ed-91e2-454e-a293-62e28be656d4
+            - name: SNIFF_SOURCE_TYPE
+              value: '18'
+            - name: RESOURCE_ID
+              value: ''
+            - name: SHOULD_USE_EBPF
+              value: 'true'
+            - name: LIBS_TO_HOOK
+              value: libssl libcrypto libpthread libc ld
+            - name: USE_SCAN_FS_SOLUTION
+              value: 'true'
+            - name: PATHS_TO_SCAN
+              value: /host/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/
+            - name: PROC_PATH
+              value: /proc
+            - name: POSTURE_INSTANCE_ID
+              value: 00000000-0000-0000-0000-000000000000
+          command:
+            - /sensor/ebpf_entry_point.sh
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: '1.0'
+            requests:
+              cpu: '0.1'
+              memory: 100Mi
+          volumeMounts:
+            - name: host-root
+              mountPath: /host
+            - name: docker-socket
+              mountPath: /var/run/docker.sock
+            - name: sensor-storage
+              mountPath: /var/noname-sensor
+      volumes:
+        - name: host-root
+          hostPath:
+            path: /
+        - name: docker-socket
+          hostPath:
+            path: /var/run/docker.sock
+        - name: sensor-storage
+          emptyDir:
+            sizeLimit: 1Gi

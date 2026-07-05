@@ -1,0 +1,7 @@
+helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+helm repo update
+kubectl create namespace sonarqube
+helm uninstall sonarqube
+
+helm show values sonarqube/sonarqube > values.yaml
+helm upgrade --install --create-namespace -n sonarqube sonarqube sonarqube/sonarqube -f values.yaml

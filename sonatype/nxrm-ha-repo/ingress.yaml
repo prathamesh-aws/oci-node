@@ -1,0 +1,42 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: sonatype
+  name: repo-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+spec:
+  ingressClassName: nginx
+#  tls:
+#    - hosts:
+#        - repo.pratz.space
+#        - docker.sonatype-repo.secyour.space
+#      secretName: nexus-cert-tls  # Ensure this secret exists
+  rules:
+    - host: repo.pratz.space
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nexusrepo-nxrm-ha
+                port:
+                  number: 80
+#    - host: docker.secyour.space
+#      http:
+#        paths:
+#          - path: /
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: nexusrepo-nxrm-ha-hl
+#                port:
+#                  number: 8081

@@ -1,0 +1,53 @@
+[Unit]
+Description=Lightweight Kubernetes
+Documentation=https://k3s.io
+Wants=network-online.target
+After=network-online.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=notify
+EnvironmentFile=-/etc/default/%N
+EnvironmentFile=-/etc/sysconfig/%N
+EnvironmentFile=-/etc/systemd/system/k3s.service.env
+KillMode=process
+Delegate=yes
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNOFILE=1048576
+LimitNPROC=infinity
+LimitCORE=infinity
+TasksMax=infinity
+TimeoutStartSec=0
+Restart=always
+RestartSec=5s
+ExecStartPre=/bin/sh -xc '! /usr/bin/systemctl is-enabled --quiet nm-cloud-setup.service 2>/dev/null'
+ExecStartPre=-/sbin/modprobe br_netfilter
+ExecStartPre=-/sbin/modprobe overlay
+ExecStart=/usr/local/bin/k3s \
+    server \
+    --disable=traefik \
+
+
+
+
+kubectl create secret docker-registry docker-secret \
+  --docker-server=https://index.docker.io/v1/ \
+  --docker-username=prathamesh1545 \
+  --docker-password=mangesh8019 \
+  --docker-email=jadhavprah3@gmail.com \
+  --namespace=default
+
+
+
+export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+
+
+
+sudo rm -rf /var/lib/rancher/k3s/server/manifests/traefik.yaml
+helm uninstall traefik traefik-crd -n kube-system
+sudo systemctl restart k3s
+
+systemctl deamon-reload

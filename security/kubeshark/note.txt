@@ -1,0 +1,2 @@
+helm repo add kubeshark https://helm.kubeshark.co
+helm install kubeshark kubeshark/kubeshark

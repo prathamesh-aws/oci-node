@@ -1,0 +1,18 @@
+
+kubectl create -f https://download.elastic.co/downloads/eck/2.16.1/crds.yaml
+
+kubectl apply -f https://download.elastic.co/downloads/eck/2.16.1/operator.yaml
+
+kubectl get secret elasticsearch-quickstart-es-elastic-user -o go-template='{{.data.elastic | base64decode}}'
+
+
+
+#edit the spec of 
+kubectl edit elasticsearch elastic -n elastic-system
+
+spec:
+  http:
+    service:
+      spec:
+        type: LoadBalancer
+

@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noname-security-posture
+  labels:
+    k8s-app: noname-security-posture
+spec:
+  selector:
+    matchLabels:
+      name: noname-security-posture
+  template:
+    metadata:
+      labels:
+        name: noname-security-posture
+    spec:
+      hostNetwork: true
+      containers:
+        - name: noname-security-posture
+          image: jfrog.cicd.nonamesec.com/nns-docker/noname-kubernetes-posture:v1.0.4
+          env:
+            - name: INSTANCE_ID
+              value: 00000000-0000-0000-0000-000000000000
+            - name: IS_ACTIVE
+              value: 'True'
+            - name: HEALTH_INTERVAL_IN_MINUTES
+              value: '10'
+            - name: RETRIEVAL_INTERVAL_IN_MINUTES
+              value: '720'
+            - name: PODS_MAPPING_INTERVAL_IN_MINUTES
+              value: '10'
+            - name: MANAGE_JOBS_INTERVAL_IN_MINUTES
+              value: '2'
+            - name: SEND_PODS_MAPPING_WITH_CONFIG
+              value: 'true'
+            - name: USE_PROXY
+              value: 'false'
+            - name: PROXY_URL
+              value: ''
+            - name: PROXY_BASIC_DIGEST_AUTH_USER_PASS
+              value: ''
+            - name: VERIFY_CERTIFICATE
+              value: 'false'
+            - name: CERTIFICATE_PATH
+              value: ''
+            - name: HEALTH_URL
+              value: >-
+                https://ec2-54-81-106-124.compute-1.amazonaws.com/data-orchestration/platform/5594a3fbe9084f8fb7c749325889b22c
+            - name: CONFIGURATION_URL
+              value: >-
+                https://ec2-54-81-106-124.compute-1.amazonaws.com/data-orchestration/platform/d37a7c412b1044d6969e051c4f20fd3e
+            - name: PODS_MAPPING_URL
+              value: >-
+                https://ec2-54-81-106-124.compute-1.amazonaws.com/data-orchestration/platform/bd1abc8f59ea45ea937763f92e1912ae
+            - name: POD_ID
+              value: 00000000-0000-0000-0000-000000000000
+            - name: JWT_SECRET_KEY
+              value: POSTURE_SECRET_PLACEHOLDER
+            - name: JWT_ALGORITHM
+              value: HS256
+            - name: JWT_EXPIRATION
+              value: '10'
+            - name: JWT_HEADER_NAME
+              value: 84cc8b7345a344e4a5f64e3696d81099
+          imagePullPolicy: Always
+          resources:
+            limits:
+              memory: 300Mi
+              cpu: '0.5'
+          securityContext:
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - mountPath: /s6/retrieval/event
+              name: s6-dir-event
+            - mountPath: /s6/retrieval/supervise
+              name: s6-dir-supervise
+            - mountPath: /s6/.s6-svscan
+              name: s6-dir-svscan
+      serviceAccountName: noname-posture-service-account
+      imagePullSecrets:
+        - name: noname-artifactory-credentials
+      volumes:
+        - emptyDir: {}
+          name: s6-dir-event
+        - emptyDir: {}
+          name: s6-dir-supervise
+        - emptyDir: {}
+          name: s6-dir-svscan

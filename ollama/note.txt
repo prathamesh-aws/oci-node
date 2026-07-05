@@ -1,0 +1,7 @@
+helm repo add open-webui https://helm.openwebui.com
+helm show values open-webui/open-webui > values.yaml
+
+helm install open-webui open-webui/open-webui -n ollama --values web-values.yaml
+
+
+helm upgrade open-webui open-webui/open-webui -n ai -f values-web-values.yaml

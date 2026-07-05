@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -e
+
+namespace="noname-security"
+
+docker_user="training@nonamesecurity.com"
+docker_password="eyJ2ZXIiOiIyIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYiLCJraWQiOiJoblh5eWFzX0k1bWFUN2ZtU0w5YkFyMmluZlN3cHVibGpXUEFjeENMNEdFIn0.eyJzdWIiOiJqZnJ0QDAxZzVyenMxNDhyeXliMW1iZGNxeTAwdjcwL3VzZXJzL3RyYWluaW5nQG5vbmFtZXNlY3VyaXR5LmNvbSIsInNjcCI6Im1lbWJlci1vZi1ncm91cHM6aW5zdGFsbGVyIiwiYXVkIjoiamZydEAwMWc1cnpzMTQ4cnl5YjFtYmRjcXkwMHY3MCIsImlzcyI6ImpmcnRAMDFnNXJ6czE0OHJ5eWIxbWJkY3F5MDB2NzAvdXNlcnMvZGV2b3BzQG5vbmFtZXNlY3VyaXR5LmNvbSIsImlhdCI6MTcyNTY1MTc1MCwianRpIjoiYWMxMDU0ZjUtMzM1OC00M2EyLWFiNGQtYzExOGJhNWM5ZjA3In0.dtWi_XbqJjLciQgvEt8KTyhmXXxi7J1mTQPD6FvnfCTidFWLiTLGy22CA7IzAuRxlOEGEWaafWycdSDczjD26EseKNSTKvT4jP4-auY9UThx0bvIVIlyabQp-rbNz51cGX-3NlYEhR1cSG1BX_vfiaOoXqv4jmVTvG5-L08iiJbDuAFvt8zEWXrz0OYOWltanuFPnGv_YFiX396eXmI7U6MnJAmrF3QfExc_g85hpBO2kPiodCUepkhd7LkToIpRSyFL-QEpNwy3yAlmEEFLEZz4uDTj1XlW9c1LHcy-6wLW3u9VHVzpGFGFgE2UiundMvuvWMrMjsFjr54_2FEgLg"
+
+docker_registry="jfrog.cicd.nonamesec.com/nns-docker"
+
+has_secret="$(kubectl get secret noname-artifactory-credentials -n "$namespace" --ignore-not-found --no-headers=true)"
+if [[ -z "$has_secret" ]]; then
+    kubectl create secret docker-registry noname-artifactory-credentials --docker-server="$docker_registry" --docker-username="$docker_user" --docker-password="$docker_password" --namespace="$namespace"
+fi

@@ -1,0 +1,1 @@
+helm install noname-security ./helm --namespace noname-security --create-namespace

@@ -1,0 +1,24 @@
+kubectl get configmap -n ingress-nginx
+
+
+kubectl edit configmap nginx-ingress-ingress-nginx-controller -n ingress-nginx
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingress-nginx-controller
+  namespace: ingress-nginx
+data:
+  enable-modsecurity: "true"              # Enables ModSecurity
+  enable-owasp-modsecurity-crs: "true"    # Enables OWASP Core Rule Set (optional but recommended)
+  modsecurity-snippet: |                  # Custom ModSecurity rules
+    SecRuleEngine On                      # Turns on blocking mode (default is DetectionOnly)
+    SecRequestBodyAccess On
+
+
+only add the data section
+
+kubectl logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx
+
+to check if backend is reloaded
+

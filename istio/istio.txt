@@ -1,0 +1,20 @@
+istioctl install --set profile=default   --set values.global.proxy.resources.requests.cpu=10m   --set values.global.proxy.resources.requests.memory=64Mi   --set values.global.proxy.resources.limits.cpu=50m   --set values.global.proxy.resources.limits.memory=128Mi -y
+
+istioctl uninstall --purge
+
+#i have delete the ingress controller of istio
+
+
+
+#to label
+kubectl label namespace minio istio-injection=enabled
+
+#to restart all the deploymnet in that namespace
+kubectl rollout restart deployment -n db
+
+#to unlable
+kubectl label namespace db istio-injection-
+
+#to show lablels
+kubectl get namespace --show-labels
+

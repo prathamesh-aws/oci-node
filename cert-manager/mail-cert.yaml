@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: mailu-cert
+  namespace: mailu
+spec:
+  secretName: mailu-certificates
+  dnsNames:
+    - mail.secyour.space
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  duration: 2160h # 90 days
+  renewBefore: 360h # 15 days before expiry

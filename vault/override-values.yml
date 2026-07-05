@@ -1,0 +1,19 @@
+# Vault Helm chart Value Overrides
+global:
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+server:
+  serviceAccount:
+    createSecret: true
+
+# Vault UI
+ui:
+  enabled: true
+  serviceType: "LoadBalancer"
+  serviceNodePort: null
+  externalPort: 8200

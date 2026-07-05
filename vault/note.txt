@@ -1,0 +1,24 @@
+# add the helm repo
+helm repo add hashicorp https://helm.releases.hashicorp.com
+
+#searching the repo
+helm search repo hashicorp/vault
+
+#getting values
+helm show values hashicorp/vault > values.yaml
+
+#get available release
+helm install vault hashicorp/vault --namespace vault --dry-run
+
+#installing 
+helm install vault hashicorp/vault --namespace vault --version 0.28.0
+
+#installing with values.yaml
+
+helm install vault hashicorp/vault \
+    --namespace vault \
+    -f values.yaml 
+
+
+#installing the vault operator for getting the secrets in pod without sidecart
+helm install vault-secrets-operator hashicorp/vault-secrets-operator

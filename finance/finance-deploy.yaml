@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: finance
+  labels:
+    app: finance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: finance
+  template:
+    metadata:
+      labels:
+        app: finance
+    spec:
+      containers:
+        - name: finance-container
+          image: registry.secyour.space/expence:1
+          ports:
+            - containerPort: 5000
+#      imagePullSecrets:
+#        - name: docker-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: finance-service
+spec:
+  selector:
+    app: finance
+  ports:
+    - protocol: TCP	
+      port: 80
+      targetPort: 5000
+  type: ClusterIP

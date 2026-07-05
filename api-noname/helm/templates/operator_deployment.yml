@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noname-remote-operator
+  namespace: {{- toYaml .Release.Namespace | nindent 4 }}
+  labels:
+    app: noname-remote-operator
+  {{- include "helm.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.nonameRemoteOperator.replicas }}
+  selector:
+    matchLabels:
+      app: noname-remote-operator
+    {{- include "helm.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: noname-remote-operator
+      {{- include "helm.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        - name: NOMANAGE_CLIENT_INSIDE_CONTAINER
+          value: {{ quote .Values.nonameRemoteOperator.env.nomanageClientInsideContainer }}
+        - name: MANAGEMENT_HOSTNAME
+          value: {{ quote .Values.nonameRemoteOperator.env.managementHostname }}
+        - name: NOMANAGE_SECRET
+          value: {{ quote .Values.nonameRemoteOperator.env.nomanageSecret }}
+        - name: NONAME_HTTP_PROXY
+          value: {{ quote .Values.nonameRemoteOperator.env.nonameHttpProxy }}
+        - name: NONAME_HTTP_PROXY_BASIC_AUTH
+          value: {{ quote .Values.nonameRemoteOperator.env.nonameHttpProxyBasicAuth }}
+        - name: NONAME_HTTP_PROXY_BEARER_AUTH
+          value: {{ quote .Values.nonameRemoteOperator.env.nonameHttpProxyBearerAuth }}
+        - name: ENGINE_HTTP_PROXY_BEARER_AUTH_DETAILS
+          value: {{ quote .Values.nonameRemoteOperator.env.engineHttpProxyBearerAuthDetails }}
+        - name: KUBERNETES_CLUSTER_DOMAIN
+          value: {{ quote .Values.kubernetesClusterDomain }}
+        - name: OPERATOR_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        image: {{ printf "%s:%s" .Values.nonameRemoteOperator.image.repository .Values.nonameRemoteOperator.image.tag | quote }}
+        imagePullPolicy: {{ .Values.nonameRemoteOperator.imagePullPolicy }}
+        name: noname-remote-operator
+        resources: {{- toYaml .Values.nonameRemoteOperator.resources | nindent 10 }}
+        securityContext:
+          readOnlyRootFilesystem: true
+        volumeMounts:
+          - mountPath: /tmp
+            name: tmp-dir
+      imagePullSecrets:
+      - name: noname-artifactory-credentials
+      serviceAccountName: noname-remote-operator-sa
+      volumes:
+        - name: tmp-dir
+          emptyDir: {}

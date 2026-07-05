@@ -1,0 +1,8 @@
+installer.yaml is fpr cortex agent .
+
+
+###for kspm
+
+helm repo add cortex https://paloaltonetworks.github.io/cortex-cloud --force-update
+
+helm upgrade --install konnector cortex/konnector --wait-for-jobs --create-namespace --namespace panw --values values.yaml

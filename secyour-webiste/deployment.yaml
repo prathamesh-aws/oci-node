@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secyour-landing
+  labels:
+    app: secyour
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: secyour
+  template:
+    metadata:
+      labels:
+        app: secyour
+    spec:
+      containers:
+      - name: secyour-site
+        image: prathamesh1545/prathamesh:secyour # Update this with your actual image path
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+        resources:
+          limits:
+            cpu: "200m"
+            memory: "250Mi"
+          requests:
+            cpu: "100m"
+            memory: "128Mi"

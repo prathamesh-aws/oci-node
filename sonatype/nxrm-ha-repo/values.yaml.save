@@ -1,0 +1,432 @@
+# Declare variables to be passed into your templates.
+namespaces:
+  nexusNs:
+    enabled: false
+    name: "sonatype"
+  cloudwatchNs:
+    enabled: false
+    name: amazon-cloudwatch
+  externaldnsNs: nexus-externaldns
+serviceAccount:
+  enabled: false
+  name: nexus-repository-deployment-sa #This service account in managed by Helm
+  labels: {}
+  annotations:
+    # Set annotations for service account. E.g. if deploying to AWS EKS
+    # and secrets manager is enabled then this role should have permissions for using secret manager.
+    # If using externaldns, role with route53 permissions needed by external-dns
+    # eks.amazonaws.com/role-arn: arn:aws:iam::000000000000:role/nxrm-nexus-role
+azure:
+  enabled: false  #set to true to enable azure specific yamls/snippets
+  keyvault:
+    enabled: false # set to true to pull license, db and nexus admin password secrets from azure key vault
+aws:
+  enabled: false #set to true to enable aws specific yamls like external dns and fluent bit
+  clusterRegion: us-east-1
+  secretmanager:
+    enabled: false # set to true to pull license, db and nexus admin password secrets from aws secret manager
+  externaldns:
+    enabled: false
+    domainFilter: example.com #your root domain e.g example.com
+    awsZoneType: private # hosted zone to look at (valid values are public, private or no value for both)
+  fluentbit:
+    enabled: false #set this to true to enable sending of logs to CloudWatch
+    fluentBitVersion: 2.28.0
+    clusterName: nxrm-nexus
+statefulset:
+  name: nxrm-statefulset
+  serviceName: nxrm-statefulset-service
+  replicaCount: 1
+  clustered: true
+  additionalVolumes:
+  additionalVolumeMounts:
+  additionalContainers:
+  # # Add annotations to statefulset to enhance configurations
+  annotations: {}
+  podAnnotations: {}
+  nodeSelector: {}
+  topologySpreadConstraints: []
+  # hostAliases allows the modification of the hosts file inside a container
+  hostAliases: []
+  # - ip: "192.168.1.10"
+  #   hostnames:
+  #   - "example.com"
+  #   - "www.example.com"
+
+  # Uncomment and modify this to run a command after starting the nexus container.
+  postStart:
+    command: null   # '["/bin/sh", "-c", "ls"]'
+  preStart:
+    command: null
+
+  # # Add init containers. e.g. to be used to give specific permissions for nexus-data.
+  # # Add your own init containers as needed
+  initContainers:
+    # chown nexus-data to 'nexus' user and init log directories/files for a new pod
+    # otherwise the side car containers will crash a couple of times and backoff whilst waiting
+    # for nxrm-app to start and this increases the total start up time.
+    - name: chown-nexusdata-owner-to-nexus-and-init-log-dir
+      image: busybox:1.33.1
+      command: [/bin/sh]
+      args:
+        - -c
+        - >-
+          mkdir -p /nexus-data/etc/logback &&
+          mkdir -p /nexus-data/log/tasks &&
+          mkdir -p /nexus-data/log/audit &&
+          touch -a /nexus-data/log/tasks/allTasks.log &&
+          touch -a /nexus-data/log/audit/audit.log &&
+          touch -a /nexus-data/log/request.log &&
+          chown -R '200:200' /nexus-data
+      volumeMounts:
+        - name: nexus-data
+          mountPath: /nexus-data
+      resources:
+        limits:
+          cpu: "0.2"
+          memory: "512Mi"
+        requests:
+          cpu: "0.1"
+          memory: "256Mi"
+  container:
+    image:
+      repository: sonatype/nexus3
+      nexusTag: 3.78.1
+    resources:
+      # See help documentation, these are minimum system requirements
+      requests:
+        cpu: 1
+        memory: "2Gi"
+      limits:
+        cpu: 1
+        memory: "2Gi"
+    containerPort: 8081
+    pullPolicy: IfNotPresent
+    terminationGracePeriod: 120
+    env:
+      nexusDBName: nexus
+      nexusDBPort: 5432
+      install4jAddVmParams: "-Xms2703m -Xmx2703m"
+      jdbcUrlParams: null # Must start with a '?' e.g. "?foo=bar&baz=foo"
+      zeroDowntimeEnabled: false
+    additionalEnv:
+      null
+      # -- Uncomment these when using secret.existingDbSecret.enabled = true
+      # - name: DB_NAME
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: secret-name
+      #       key: secret-key
+      # - name: DB_HOST
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: secret-name
+      #       key: secret-key
+      # - name: DB_USER
+      #   valueFrom:
+      #     secretKeyRef:
+      #       name: secret-name
+      #       key: secret-key
+      # - name: DB_PASSWORD
+      #   valueFrom:
+      #     secretKeyRef:
+    #       name: secret-name
+    #       key: secret-key
+  requestLogContainer:
+    image:
+      repository: busybox
+      tag: 1.33.1
+    resources:
+      limits:
+        cpu: "0.2"
+        memory: "512Mi"
+      requests:
+        cpu: "0.1"
+        memory: "256Mi"
+  auditLogContainer:
+    image:
+      repository: busybox
+      tag: 1.33.1
+    resources:
+      limits:
+        cpu: "0.2"
+        memory: "512Mi"
+      requests:
+        cpu: "0.1"
+        memory: "256Mi"
+  taskLogContainer:
+    image:
+      repository: busybox
+      tag: 1.33.1
+    resources:
+      limits:
+        cpu: "0.2"
+        memory: "512Mi"
+      requests:
+        cpu: "0.1"
+        memory: "256Mi"
+  startupProbe: # Allow up to 30 minutes for the container to finish any pending DB migration. Once the startup probe succeeds the liveness- and readiness probes get activated (no need for initialDelaySeconds).
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 180
+    path: /
+  livenessProbe:
+    initialDelaySeconds: 0
+    periodSeconds: 60
+    timeoutSeconds: 1
+    failureThreshold: 6
+    path: /
+  readinessProbe:
+    initialDelaySeconds: 0
+    periodSeconds: 60
+    timeoutSeconds: 1
+    failureThreshold: 6
+    path: /
+  imagePullSecrets:
+    # -- The base64 encoded dockerconfigjson
+    secret: ""
+    # -- Use an existing imagePullSecret created by a secrets operator
+    existingSecret:
+      # -- By default the existing secret is disabled, set this to true in order to provide an existing imagePullSecret
+      enabled: false
+      # -- The existing imagePullSecret name
+      name: ""
+ingress:
+  name: "nexus-ingress"
+  enabled: false
+  host: null #host to apply this ingress rule to e.g. example.com. Set it as you wish
+  hostPath: /
+  dockersubdomain: false # uncomment this if you'd like to create a wildcard rule in your ingress for docker sub domain routing. This will result in the creation of routing rules in your load balancer for sub domains of your host. Thus, you must also set the host
+  defaultRule: false
+  additionalRules: null
+  ingressClassName: null # e.g. nginx, alb
+  #  tls:
+  #    - secretName: "tlsSecretName1"
+  #      hosts:
+  #      - repo.foo1
+  #      - repo.bar1
+  #    - secretName: "tlsSecretName2"
+  #      hosts:
+  #        - repo.foo2
+  #        - repo.bar2
+  annotations:
+#  Note: the annotations below are just a guide; delete or insert more as needed depending on your use case: aws, azure, on prem
+#    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+#    alb.ingress.kubernetes.io/scheme: internal # scheme
+#    alb.ingress.kubernetes.io/subnets: subnet-1,subnet-2 #comma separated list of subnet ids
+#    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+#    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:0000000000000:certificate/00000000-1111-2222-3333-444444444444  # The AWS Certificate Manager ARN for your HTTPS certificate
+#    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:0000000000000:certificate/00000000-1111-2222-3333-444444444444  # Comment out if you don't use docker repositories - The AWS Certificate Manager ARN for your HTTPS certificate
+#    external-dns.alpha.kubernetes.io/hostname: dockerrepo1.example.com, dockerrepo2.example.com, dockerrepo3.example.com
+logStorage:
+  tailSecondaryLogs: true
+  combineTaskLogs: true
+storageClass:
+  enabled: false # For built-in storage class, set storageClass.enabled to false
+  name: local-path # For built-in storage class, set storageClass.enabled to false and specify the name of the built-in storage class here e.g. managed-csi for AKS
+  provisioner: provisionerName # To use your own storage class set storageClass.enabled to true and specify provisioner. E.g. for AKS use managed-csi. For AWS EKS: ebs.csi.aws.com. In case of AWS EKS cluster running version less than 1.23 use 'kubernetes.io/aws-ebs'
+  volumeBindingMode: "WaitForFirstConsumer"
+  reclaimPolicy: Retain
+#  parameters:
+#    type: type
+#    fsType: "fsType" # e.g. ext4
+#    iopsPerGB: "10"
+pvc:
+  accessModes: ReadWriteOnce # Set to ReadWriteMany if using EFS/Azure Files/NFS for shared log storage
+  storage: 2Gi
+  volumeClaimTemplate:
+    enabled: true
+  existingClaim: null
+
+service: # Nexus Repo NodePort Service
+  annotations: {}
+  nexus:
+    enabled: false
+    type: NodePort
+    protocol: TCP
+    port: 80
+    targetPort: 8081
+  headless:
+    annotations: {}
+    publishNotReadyAddresses: true # We want all pods in the StatefulSet to have their addresses published even before they're ready.
+externalsecrets:
+  enabled: false
+  secretstore:
+    name: nexus-secret-store
+    spec:
+      provider:
+#        aws:
+#          service: SecretsManager
+#          region: us-east-1
+#          auth:
+#            jwt:
+#              serviceAccountRef:
+#                name: nexus-repository-deployment-sa # Use the same service account name as specified in serviceAccount.name
+# Example for Azure
+#    spec:
+#      provider:
+#        azurekv:
+#          authType: WorkloadIdentity
+#          vaultUrl: "https://xx-xxxx-xx.vault.azure.net"
+#          serviceAccountRef:
+#            name: nexus-repository-deployment-sa # Use the same service account name as specified in serviceAccount.name
+# Example for Google (GCP)
+#    spec:
+#      provider:
+#        gcpsm:
+#          projectID: "nxrm-gcp-deployments"
+#          auth:
+#            workloadIdentity:
+#              clusterLocation: "us-central1-a"
+#              clusterName: "test-gke-cluster"
+#              serviceAccountRef:
+#                name: nexus-repository-deployment-sa
+#                namespace: nexusrepo
+
+  secrets:
+    nexusSecret:
+      enabled: false
+      refreshInterval: 1h
+      providerSecretName: nexus-secret.json
+      decodingStrategy: null # For Azure set to Base64
+    database:
+      refreshInterval: 1h
+      valueIsJson: false
+      providerSecretName: dbSecretName # The name of the AWS SecretsManager/Azure KeyVault/etc. secret
+      dbUserKey: username #  The name of the key in the secret that contains your database username
+      dbPasswordKey: password # The name of the key in the secret that contains your database password
+      dbHostKey: host # The name of the key in the secret that contains your database host
+    admin:
+      refreshInterval: 1h
+      valueIsJson: false
+      providerSecretName: adminSecretName # The name of the AWS SecretsManager/Azure KeyVault/etc. secret
+      adminPasswordKey: "nexusAdminPassword" # The name of the key in the secret that contains your nexus repository admin password
+    license:
+      providerSecretName: nexus-repo-license.lic # The name of the AWS SecretsManager/Azure KeyVault/etc. secret that contains your Nexus Repository license
+      decodingStrategy: null # Can be Base64
+      refreshInterval: 1h
+secret:
+  secretProviderClass: "kubernetes"
+  provider: "kubernetes" # e.g. aws, azure etc
+  dbSecret:
+    enabled: true # Enable to apply database-secret.yaml which allows you to specify db credentials
+  db:
+    user: "admin"
+    userAlias: nxrm_db_user_alias
+    password: "admin"
+    passwordAlias: nxrm_db_password_alias
+    host: "10.0.0.49"
+    hostAlias: nxrm_db_host_alias
+  # -- Use an existing secret for the database variables: DB_NAME, DB_HOST, DB_USER, DB_PASSWORD
+  existingDbSecret:
+    # -- Enabled the use of an already created secret, you need to uncomment the values from additionalEnv
+    enabled: false
+  nexusAdmin:
+    name: "nexusAdminPassword"
+    alias: "admin-nxrm-password-alias"
+  nexusAdminSecret:
+    enabled: true # Enable to apply nexus-admin-secret.yaml which allows you to the initial admin password for nexus repository
+    adminPassword: CloudSec@2025 #You should change this when you login for the first time
+  license:
+    name: nexus-repo-license.lic
+    # -- Use an already created secret with the license contents in base64, it takes the name from the above field -> name: nexus-repo-license.lic and the mount path from below: licenseSecret.mountPath
+    existingSecret: false
+    licenseSecret:
+      enabled: true
+      file: 
+      #fileContentsBase64: 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
+      #fileContentsBase64: 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
+      fileContentsBase64: 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
+      mountPath: /var/nexus-repo-license
+  nexusSecret:
+    enabled: false
+    name: nexus-secret.json
+    secretKeyfile: "secretfileName" # Specify the nexus secrets file name with --set-file secret.nexusSecret.secretKeyfile="file_name" helm option
+    mountPath: /var/nexus-repo-secrets
+  azure:
+    # a managed identity or service principal that has secrets management access to the key vault
+    userAssignedIdentityID: "userAssignedIdentityID"
+    tenantId: "azureTenantId"
+    keyvaultName: yourazurekeyvault
+    useVMManagedIdentity: true
+    usePodIdentity: false
+    nexusSecret:
+      enabled: false
+  aws:
+    license:
+      arn: arn:aws:secretsmanager:us-east-1:000000000000:secret:nxrm-nexus-license
+    nexusSecret:
+      enabled: false
+      arn: arn:aws:secretsmanager:us-east-1:000000000000:secret:nxrm-nexus-secrets-file
+    adminpassword:
+      arn: arn:aws:secretsmanager:us-east-1:000000000000:secret:admin-nxrm-password
+    rds:
+      arn: arn:aws:secretsmanager:us-east-1:000000000000:secret:nxrmrds-cred-nexus
+nexus:
+  # Default the pods UID and GID to match the nexus3 container.
+  # Customize or remove these values from the securityContext as appropriate for
+  # your deployment environment.
+  securityContext:
+    runAsUser: 200
+  properties:
+    override: false
+    data: null # specify a list of key and values to override default nexus.properties
+  extraLabels: {}
+  extraSelectorLabels: {}
+  docker:
+    enabled: false
+    type: NodePort
+    protocol: TCP
+  # registries:
+  #   - host: chart.local
+  #     port: 5000
+  #     secretName: registry-secret
+  #     targetPort: 8081
+  #     annotations: {}
+
+# Enable configmap and add arbitrary data in configmap
+config:
+  enabled: false
+  mountPath: /sonatype-nexus-conf
+  data: null

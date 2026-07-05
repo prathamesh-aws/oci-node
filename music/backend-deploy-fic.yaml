@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: music-backend
+  annotations:
+    sidecar.istio.io/proxyCPU: "20m"  
+    sidecar.istio.io/proxyCPULimit: "50m" 
+  labels:
+    app: music
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: music
+  template:
+    metadata:
+      labels:
+        app: music
+    spec:
+      containers:
+        - name: music-backend-container
+          image: prathamesh1545/portfolio:music-backend-fix
+          ports:
+            - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://admin:admin@postgres-service.db.svc.cluster.local:5432/music"
+            - name: MINIO_ENDPOINT
+              value: "http://minio-s3.minio.svc.cluster.local:9000"
+            - name: MINIO_ACCESS_KEY
+              value: "VWDpjwBoDqoeqMbus2tx"
+            - name: MINIO_SECRET_KEY
+              value: "nCuKZlHXIgE2xagrYTilZ0z6v05NncVLFmRWJffP"
+            - name: YOUTUBE_API_KEY
+              value: "AIzaSyBRdyO86MrE0HervYuRp8UiNKuneNAvicQ"
+            - name: RAPIDAPI_KEY
+              value: "7fcfe79ea7mshd7dc1efdf31a01bp1b3825jsn739e0d2a6f68"
+      imagePullSecrets:
+        - name: docker-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: music-backend-service
+spec:
+  selector:
+    app: music
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: ClusterIP

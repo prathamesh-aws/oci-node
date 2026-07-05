@@ -1,0 +1,9 @@
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+
+
+
+helm install ghost \
+  bitnami/ghost \
+  --namespace ghost \
+  -f values.yaml

@@ -1,0 +1,15 @@
+authentik:
+  secret_key: "8ALgw6Ppu5nN2q74CLmUj2uBdy60c6IKesUPgJmkzATAyY283X"
+  error_reporting:
+    enabled: true
+  postgresql:
+    password: "8ALgw6Ppu5nN2q74CLmUj2uBdy60c6IKesUPgJmkzATAyY283X"
+
+
+
+postgresql:
+    enabled: true
+    auth:
+        password: "8ALgw6Ppu5nN2q74CLmUj2uBdy60c6IKesUPgJmkzATAyY283X"
+redis:
+    enabled: true

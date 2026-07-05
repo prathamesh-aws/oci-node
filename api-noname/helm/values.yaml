@@ -1,0 +1,60 @@
+kubernetesClusterDomain: cluster.local
+
+name: noname-remote
+
+imageCredentials:
+  enabled: true
+  registry: 'jfrog.cicd.nonamesec.com/nns-docker'
+  username: 'training@nonamesecurity.com'
+  password: 'eyJ2ZXIiOiIyIiwidHlwIjoiSldUIiwiYWxnIjoiUlMyNTYiLCJraWQiOiJoblh5eWFzX0k1bWFUN2ZtU0w5YkFyMmluZlN3cHVibGpXUEFjeENMNEdFIn0.eyJzdWIiOiJqZnJ0QDAxZzVyenMxNDhyeXliMW1iZGNxeTAwdjcwL3VzZXJzL3RyYWluaW5nQG5vbmFtZXNlY3VyaXR5LmNvbSIsInNjcCI6Im1lbWJlci1vZi1ncm91cHM6aW5zdGFsbGVyIiwiYXVkIjoiamZydEAwMWc1cnpzMTQ4cnl5YjFtYmRjcXkwMHY3MCIsImlzcyI6ImpmcnRAMDFnNXJ6czE0OHJ5eWIxbWJkY3F5MDB2NzAvdXNlcnMvZGV2b3BzQG5vbmFtZXNlY3VyaXR5LmNvbSIsImlhdCI6MTcyNTY1MTc1MCwianRpIjoiYWMxMDU0ZjUtMzM1OC00M2EyLWFiNGQtYzExOGJhNWM5ZjA3In0.dtWi_XbqJjLciQgvEt8KTyhmXXxi7J1mTQPD6FvnfCTidFWLiTLGy22CA7IzAuRxlOEGEWaafWycdSDczjD26EseKNSTKvT4jP4-auY9UThx0bvIVIlyabQp-rbNz51cGX-3NlYEhR1cSG1BX_vfiaOoXqv4jmVTvG5-L08iiJbDuAFvt8zEWXrz0OYOWltanuFPnGv_YFiX396eXmI7U6MnJAmrF3QfExc_g85hpBO2kPiodCUepkhd7LkToIpRSyFL-QEpNwy3yAlmEEFLEZz4uDTj1XlW9c1LHcy-6wLW3u9VHVzpGFGFgE2UiundMvuvWMrMjsFjr54_2FEgLg'
+  email:
+imagePullSecrets:
+  - name: noname-artifactory-credentials
+
+labels:
+  app: noname
+
+preDeploymentConfiguration:
+  sensor:
+    enabled: false
+  posture:
+    enabled: false
+
+enableClusterRole: true
+
+nonameRemoteOperator:
+  env:
+    nomanageClientInsideContainer: 'true'
+    managementHostname: 'https://ec2-54-81-106-124.compute-1.amazonaws.com/nomanage'
+    nomanageSecret: 'd4ff046b292ab8e0407cc9f0b26bb049'
+
+  image:
+    repository: 'jfrog.cicd.nonamesec.com/nns-docker/noname-remote-operator'
+    tag: 'remote-operator-1.0.13'
+  imagePullPolicy: Always
+
+  labels:
+    app: noname-remote-operator
+
+  replicas: 1
+
+  serviceAccount:
+    annotations: {}
+
+posture:
+  labels:
+    app: noname-security-posture
+  serviceAccount:
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: noname-posture-service-account
+  clusterRole:
+    # The name of the cluster role to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: noname-posture-cluster-role
+  clusterRoleBinding:
+    # The name of the cluster role binding to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: noname-posture-cluster-role-binding

@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wise-hawking
+  labels:
+    app: wise-hawking
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wise-hawking
+  template:
+    metadata:
+      labels:
+        app: wise-hawking
+    spec:
+      containers:
+        - name: wise-hawking
+          image: prathamesh1545/prathamesh:custodian
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: PORT
+              value: "3000"
+            - name: POSTGRES_HOST
+              value: "10.0.0.49"
+            - name: POSTGRES_PORT
+              value: "5432"
+            - name: POSTGRES_DATABASE
+              value: "custodian"
+            - name: POSTGRES_USER
+              value: "admin"
+            - name: POSTGRES_PASSWORD
+              value: "admin"
+          livenessProbe:
+            httpGet:
+              path: /login
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /login
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: "1"
+              memory: 512Mi
+            requests:
+              cpu: 200m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wise-hawking-service
+  labels:
+    app: wise-hawking
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app: wise-hawking
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wise-hawking-ingress
+  labels:
+    app: wise-hawking
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: wisehawking.pratz.space
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: wise-hawking-service
+                port:
+                  number: 80

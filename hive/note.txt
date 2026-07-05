@@ -1,0 +1,6 @@
+helm repo add strangebee https://strangebeecorp.github.io/helm-charts
+
+helm show values strangebee/thehive
+
+
+helm install thehive  strangebee/thehive --create -n hive -f values.yaml

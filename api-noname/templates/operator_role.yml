@@ -1,0 +1,48 @@
+---
+# Source: noname-remote/templates/operator_role.yml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: noname-remote-operator-role
+  namespace:
+    noname-security
+  labels:
+    helm.sh/chart: noname-remote-1.0.0
+    app.kubernetes.io/name: noname-remote
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "1.0.4"
+    app.kubernetes.io/managed-by: Helm
+rules:
+  - apiGroups:
+      - apps
+    resources:
+      - daemonsets
+      - deployments
+    verbs:
+      - get
+      - update
+      - create
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - update
+      - create
+      - delete
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - events
+    verbs:
+      - delete
+      - list

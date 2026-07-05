@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-lb
+spec:
+  type: LoadBalancer
+  selector:
+    common.k8s.elastic.co/type: elasticsearch
+    elasticsearch.k8s.elastic.co/cluster-name: elastic
+    elasticsearch.k8s.elastic.co/statefulset-name: elastic-es-default
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9200       # External port
+      targetPort: 9200 # Port of ClusterIP service

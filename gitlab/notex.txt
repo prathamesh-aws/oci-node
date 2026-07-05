@@ -1,0 +1,7 @@
+helm repo add gitlab https://charts.gitlab.io
+helm repo update
+helm upgrade --install oracle gitlab/gitlab-agent \
+    --namespace gitlab-agent-oracle \
+    --create-namespace \
+    --set config.token=glagent-x-cMYAnvLHVYg6hcRqmZfG86MQpwOjFhN3FmNww.01.130av0715 \
+    --set config.kasAddress=wss://kas.gitlab.com

@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: music-frontend
+  labels:
+    app: music-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: music-frontend
+  template:
+    metadata:
+      labels:
+        app: music-frontend
+    spec:
+      containers:
+        - name: music-frontend-container
+          image: registry.secyour.space/music-frontend:1
+          ports:
+            - containerPort: 3000
+#      imagePullSecrets:
+#        - name: docker-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: music-frontend-service
+spec:
+  selector:
+    app: music-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP

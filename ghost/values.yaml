@@ -1,0 +1,20 @@
+ghostHost: secyour.space
+ghostUsername: admin
+ghostPassword: CloudSec@2025
+mariadb:
+  enabled: false
+externalDatabase:
+  type: postgresql
+  host: 10.0.0.49
+  port: 5432
+  database: ghost
+  user: admin
+  password: admin
+service:
+  type: ClusterIP
+persistence:
+  enabled: true
+  storageClass: local-path
+  size: 2Gi
+#mysql:
+#  enabled: false

@@ -1,0 +1,7 @@
+helm repo add gitlab https://charts.gitlab.io
+helm repo update
+helm upgrade --install prathamesh gitlab/gitlab-agent \
+    --namespace gitlab-agent-prathamesh \
+    --create-namespace \
+    --set config.token=glagent--vwwe0KwbdcPh9ntHeguD2M6MQpvOjEKcDoxZTJodzIQ.01.181lmyk6x \
+    --set config.kasAddress=wss://kas.gitlab.com

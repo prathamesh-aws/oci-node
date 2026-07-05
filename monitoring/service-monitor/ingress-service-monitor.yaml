@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+#  annotations:
+#    meta.helm.sh/release-name: prometheus-operator
+#    meta.helm.sh/release-namespace: monitoring
+  name: nginx-ingress-controller-metrics
+  namespace: monitoring
+  labels:
+#    app.kubernetes.io/instance: prometheus-operator
+    release: prometheus-operator
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ingress-nginx
+      app.kubernetes.io/component: controller
+  endpoints:
+    - port: metrics
+      path: /metrics
+#      scrapeTimeout: 30s
+      interval: 30s
+      scheme: http
+#  jobLabel: prometheus-operator
+  namespaceSelector:
+    matchNames:
+      - ingress-nginx

@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: noname-remote-operator-rolebinding
+  namespace: {{- toYaml .Release.Namespace | nindent 4 }}
+  labels:
+  {{- include "helm.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: 'noname-remote-operator-role'
+subjects:
+  - kind: ServiceAccount
+    name: 'noname-remote-operator-sa'
+    namespace: {{- toYaml .Release.Namespace | nindent 6 }}
