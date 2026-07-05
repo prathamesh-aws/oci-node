@@ -2,7 +2,7 @@
 
 # Define variables
 #REPO_DIR="kubernetes"  # Change this to your repo path
-REMOTE_NAME="oci"  # Change this to your remote name
+REMOTE_NAME="origin"  # Change this to your remote name
 BRANCH_NAME="main"  # Change to the correct branch if needed
 COMMIT_MSG="Automated backup on $(date '+%Y-%m-%d')"
 
