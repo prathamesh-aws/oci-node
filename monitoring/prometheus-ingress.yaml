@@ -4,11 +4,11 @@ metadata:
   name: prometheus-ingress
   namespace: monitoring
   annotations:
-    nginx.ingress.kubernetes.io/auth-url: http://ak-outpost-authentik-embedded-outpost.sso.svc.cluster.local:9000/outpost.goauthentik.io/auth/nginx
-    nginx.ingress.kubernetes.io/auth-signin: https://prometheus.pratz.space/outpost.goauthentik.io/start?rd=$scheme://$http_host$escaped_request_uri
-    nginx.ingress.kubernetes.io/auth-response-headers: Set-Cookie,X-authentik-username,X-authentik-groups,X-authentik-entitlements,X-authentik-email,X-authentik-name,X-authentik-uid
-    nginx.ingress.kubernetes.io/auth-snippet: |
-      proxy_set_header X-Forwarded-Host $http_host;
+#    nginx.ingress.kubernetes.io/auth-url: http://ak-outpost-authentik-embedded-outpost.sso.svc.cluster.local:9000/outpost.goauthentik.io/auth/nginx
+#    nginx.ingress.kubernetes.io/auth-signin: https://prometheus.pratz.space/outpost.goauthentik.io/start?rd=$scheme://$http_host$escaped_request_uri
+#    nginx.ingress.kubernetes.io/auth-response-headers: Set-Cookie,X-authentik-username,X-authentik-groups,X-authentik-entitlements,X-authentik-email,X-authentik-name,X-authentik-uid
+#    nginx.ingress.kubernetes.io/auth-snippet: |
+#      proxy_set_header X-Forwarded-Host $http_host;
   labels:
     app: prometheus
 spec:
@@ -25,21 +25,23 @@ spec:
                 port:
                   number: 9090
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: authentik-outpost-ingress-prometheus
-  namespace: sso
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: prometheus.pratz.space
-      http:
-        paths:
-          - path: /outpost.goauthentik.io
-            pathType: Prefix
-            backend:
-              service:
-                name: ak-outpost-authentik-embedded-outpost
-                port:
-                  number: 9000
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: authentik-outpost-ingress-prometheus
+#  namespace: sso
+#spec:
+#  ingressClassName: nginx
+#  rules:
+#    - host: prometheus.pratz.space
+#      http:
+#        paths:
+#          - path: /outpost.goauthentik.io
+#            pathType: Prefix
+#            backend:
+#              service:
+#                name: ak-outpost-authentik-embedded-outpost
+#                port:
+#                  number: 9000
+#
+#
