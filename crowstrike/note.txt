@@ -1,0 +1,41 @@
+export FALCON_CLIENT_ID=7b512aed47a848cab8d046c74aba714e
+export FALCON_CLIENT_SECRET=outEMOQdGp9h6Tgli8a2wJk1vHPZF3US05Y4fb7n
+export FALCON_CID=3010C818B4C344F886A18E49E1EB323B-F6
+export CLUSTER_NAME="prathamesh-k8s"
+export REGISTRY_TOKEN=eyJhdXRocyI6IHsgInJlZ2lzdHJ5LmNyb3dkc3RyaWtlLmNvbSI6IHsgImF1dGgiOiAiWm1NdE16QXhNR000TVRoaU5HTXpORFJtT0RnMllURTRaVFE1WlRGbFlqTXlNMkk2WTIxV2JXUkhkSFZQYWtGNFQycEJkMDFFUVhkTlJFRjNUVVJCTms1dFpESmtlbHBUV1cxc01GTnFZekpOTW5oRFdWVXdlbGxYTlRWaE1rVXdUVVZTUmc9PSIgfSB9IH0=
+
+export SENSOR_IMAGE_TAG=7.38.0-19102-1
+
+
+
+export REGISTRY_TOKEN=$(./falcon-container-sensor-pull.sh \
+    -u "$FALCON_CLIENT_ID" \
+    -s "$FALCON_CLIENT_SECRET" \
+    -r us-2 \
+    -t falcon-sensor \
+    --get-pull-token)
+
+
+
+########i have made changesin ths script to enable the side cart container.
+
+--set falcon-sensor.enabled=true \
+    --set falcon-sensor.node.enabled=false \
+    --set falcon-sensor.container.enabled=true
+
+
+
+Enable automatic injection
+Inject into an entire namespace
+
+Label the namespace:
+
+kubectl label namespace default sensor.falcon-system.crowdstrike.com/injection=enabled
+
+or
+
+kubectl label namespace myapp sensor.falcon-system.crowdstrike.com/injection=enabled
+
+Restart the workloads:
+
+kubectl rollout restart deployment -n myapp

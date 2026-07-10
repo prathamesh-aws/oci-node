@@ -1,0 +1,64 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Kubernetes Ingress — AI Security Chatbot
+# Requires: nginx ingress controller  (or update annotations for your controller)
+# TLS:      cert-manager with Let's Encrypt (optional, see below)
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aidr-chatbot-ing
+  namespace: default
+  labels:
+    app: aidr-chatbot
+    component: web
+  annotations:
+    # ── Nginx Ingress Controller ─────────────────────────────────────────────
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+
+    # ── SSL / HTTPS via cert-manager ─────────────────────────────────────────
+    # Uncomment below if you have cert-manager installed:
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+    # ── Security headers ─────────────────────────────────────────────────────
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header X-XSS-Protection "1; mode=block" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+spec:
+  # ── TLS (HTTPS) ─────────────────────────────────────────────────────────────
+  # Uncomment and update hostname when you have a domain + cert-manager:
+  # tls:
+  #   - hosts:
+  #       - aidr-chatbot.example.com
+  #     secretName: aidr-chatbot-tls
+
+  # ── Routing Rules ────────────────────────────────────────────────────────────
+  rules:
+    # ── Production domain (update to your actual domain) ─────────────────────
+    - host: aidr.pratz.space
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aidr-chatbot-svc
+                port:
+                  number: 80
+
+    # ── Local / no-hostname fallback (useful for minikube / kind testing) ─────
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aidr-chatbot-svc
+                port:
+                  number: 80

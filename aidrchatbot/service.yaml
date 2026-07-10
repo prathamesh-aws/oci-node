@@ -1,0 +1,25 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Kubernetes Service — AI Security Chatbot
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: v1
+kind: Service
+metadata:
+  name: aidr-chatbot-svc
+  namespace: default
+  labels:
+    app: aidr-chatbot
+    component: web
+  annotations:
+    # Useful for cloud load balancers (AWS/GCP/Azure)
+    # Uncomment and set as needed:
+    # service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+spec:
+  type: ClusterIP          # Internal only — traffic comes via Ingress
+  selector:
+    app: aidr-chatbot
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80              # Service port (used by Ingress)
+      targetPort: 3000      # Container port
+  sessionAffinity: None

@@ -1,0 +1,95 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Kubernetes Deployment — AI Security Chatbot (AIDR + Gemini)
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aidr-chatbot
+  namespace: default
+  labels:
+    app: aidr-chatbot
+    version: "1.0"
+    component: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aidr-chatbot
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0          # Zero-downtime deployment
+  template:
+    metadata:
+      labels:
+        app: aidr-chatbot
+        version: "1.0"
+    spec:
+      # ── Security Context ─────────────────────────────────────────────────
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+
+      containers:
+        - name: aidr-chatbot
+          image: prathamesh1545/prathamesh:aidrchatbot
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+
+          # ── Environment Variables (inline values) ─────────────────────
+          # ⚠ Replace the placeholder values below with your actual keys
+          # before running: kubectl apply -f k8s/deployment.yaml
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: NEXT_TELEMETRY_DISABLED
+              value: "1"
+            - name: AIDR_BASE_URL
+              value: "https://api.us-2.crowdstrike.com/aidr/aiguard"
+            - name: GEMINI_API_KEY
+              value: "AQ.Ab8RN6Ksk28QrDXGNPsUgKYtbbek_NjJLe2N1dkbbfmLrBmnNw"      # ← replace this
+            - name: AIDR_TOKEN
+              value: "pts_qqyh2mix73ag2r7a2gnznjnxlrew6frp"  # ← replace this
+
+          # ── Resource Limits ────────────────────────────────────────────
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          # ── Health Probes ─────────────────────────────────────────────
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 30
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+
+          # ── Security Context ──────────────────────────────────────────
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
