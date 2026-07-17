@@ -1,0 +1,5 @@
+[2026-07-17T05:28:01Z] user=root action=init env_file_created channel=603373e1-58b6-47c1-b08e-37c0e8de5393 region=us
+[2026-07-17T05:28:23Z] user=root action=image_pulled image=registry.ai-red-teaming.paloaltonetworks.com/pairs-redteam-prd-fckx/red-teaming-onprem/stable/network-broker-client:1.4.0 digest=sha256:da98b47be8b654d876bde86d6d25e27fbec31eeed40cdcd2044906d84a84be0a
+[2026-07-17T05:28:23Z] user=root action=install image=registry.ai-red-teaming.paloaltonetworks.com/pairs-redteam-prd-fckx/red-teaming-onprem/stable/network-broker-client:1.4.0 digest=sha256:da98b47be8b654d876bde86d6d25e27fbec31eeed40cdcd2044906d84a84be0a
+[2026-07-17T06:25:25Z] user=root action=image_pulled image=registry.ai-red-teaming.paloaltonetworks.com/pairs-redteam-prd-fckx/red-teaming-onprem/stable/network-broker-client:1.4.0 digest=sha256:da98b47be8b654d876bde86d6d25e27fbec31eeed40cdcd2044906d84a84be0a
+[2026-07-17T06:25:25Z] user=root action=install image=registry.ai-red-teaming.paloaltonetworks.com/pairs-redteam-prd-fckx/red-teaming-onprem/stable/network-broker-client:1.4.0 digest=sha256:da98b47be8b654d876bde86d6d25e27fbec31eeed40cdcd2044906d84a84be0a

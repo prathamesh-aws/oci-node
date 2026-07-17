@@ -53,7 +53,7 @@ spec:
             - name: AIDR_BASE_URL
               value: "https://api.us-2.crowdstrike.com/aidr/aiguard"
             - name: GEMINI_API_KEY
-              value: "AQ.Ab8RN6Ksk28QrDXGNPsUgKYtbbek_NjJLe2N1dkbbfmLrBmnNw"      # ← replace this
+              value: "AQ.Ab8RN6Jl9Yv3dIoQsf-xqC3-5QOeZDEM6OCCX6u1MGZEpSo_yw"      # ← replace this
             - name: AIDR_TOKEN
               value: "pts_qqyh2mix73ag2r7a2gnznjnxlrew6frp"  # ← replace this
 
