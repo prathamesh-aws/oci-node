@@ -4,15 +4,14 @@ vault operator init \
     -key-threshold=1 \
 
 #unseal
-vault operator unseal IXyR0OJnSFobekZMMCKCoVEpT7wI6l+USMzE3IcyDyo=
+vault operator unseal rSDlPumbIGhq8xhareRXRvGLkiytDIrToRR1JCpf1/E=
 
 
+Unseal Key 1: rSDlPumbIGhq8xhareRXRvGLkiytDIrToRR1JCpf1/E=
+
+Initial Root Token: hvs.iqtbTi1TwVhyLGKzsiuvfSTR
 
 
-
-Unseal Key 1: nM4vuOdtCkU3LzwcyQsQyQ2u/RCyuOaSC5ZOhKeJ3T8=
-
-Initial Root Token: hvs.hgZ7yNAWJuPHJHc753SzsxTj
 
 Vault initialized with 1 key shares and a key threshold of 1. Please securely
 distribute the key shares printed above. When the Vault is re-sealed,

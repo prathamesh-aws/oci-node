@@ -1,0 +1,10 @@
+helm repo add langfuse https://langfuse.github.io/langfuse-k8s
+helm repo update
+
+##ClickHouse Operator repository
+helm repo add altinity https://helm.altinity.com
+helm repo update
+
+##cert-manager
+helm repo add jetstack https://charts.jetstack.io
+helm repo update

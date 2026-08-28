@@ -1,0 +1,752 @@
+# Langfuse Helm Chart Configuration
+
+nameOverride: ""
+fullnameOverride: ""
+
+# ============================================================
+# Langfuse
+# ============================================================
+
+langfuse:
+
+  logging:
+    level: info
+    format: text
+
+  salt:
+    value: ""
+    secretKeyRef:
+      name: ""
+      key: ""
+
+  licenseKey:
+    value: ""
+    secretKeyRef:
+      name: ""
+      key: ""
+
+  allowedOrganizationCreators: []
+
+  auth:
+    disableUsernamePassword: false
+    providers: {}
+
+  encryptionKey:
+    value: ""
+    secretKeyRef:
+      name: ""
+      key: ""
+
+  features:
+    telemetryEnabled: true
+    signUpDisabled: false
+    experimentalFeaturesEnabled: false
+
+  nodeEnv: production
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+    automountServiceAccountToken: true
+
+  smtp:
+    connectionUrl: ""
+    fromAddress: ""
+
+  # ==========================================================
+  # Ingress
+  # ==========================================================
+
+  ingress:
+    enabled: true
+
+    additionalLabels: {}
+
+    annotations: {}
+
+    className: nginx
+
+    hosts:
+      - host: langfuse.pratz.space
+        paths:
+          - path: /
+            pathType: Prefix
+
+    tls:
+      enabled: false
+      secretName: ""
+
+  podSecurityContext: {}
+
+  securityContext: {}
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  dnsConfig: {}
+
+  pod:
+    annotations: {}
+    labels: {}
+    topologySpreadConstraints: []
+
+  deployment:
+    annotations: {}
+    strategy: {}
+
+  # Global replicas
+  replicas: 1
+
+  revisionHistoryLimit: 10
+
+  # Global resources
+  resources:
+    limits:
+      cpu: 100m
+      memory: 200Mi
+    requests:
+      cpu: 50m
+      memory: 100Mi
+
+  image:
+    tag: null
+    pullPolicy: Always
+    pullSecrets: []
+
+  additionalEnv: []
+
+  additionalEnvFrom: []
+
+  extraContainers: []
+
+  extraVolumes: []
+
+  extraInitContainers: []
+
+  extraVolumeMounts: []
+
+  extraLifecycle: {}
+
+  # ==========================================================
+  # Web
+  # ==========================================================
+
+  web:
+
+    image:
+      repository: docker.langfuse.com/langfuse/langfuse
+      tag: null
+      pullPolicy: null
+      pullSecrets: null
+
+    deployment:
+      additionalLabels: {}
+      annotations: {}
+      strategy: {}
+
+    pod:
+      annotations: {}
+      labels: {}
+      nodeSelector: null
+      tolerations: null
+      affinity: null
+      topologySpreadConstraints: null
+      extraContainers: []
+      additionalEnv: []
+      additionalEnvFrom: []
+
+    service:
+      type: ClusterIP
+      port: 3000
+      externalPort: null
+      nodePort: null
+      additionalLabels: {}
+      annotations: {}
+
+    resources:
+      limits:
+        cpu: 100m
+        memory: 200Mi
+      requests:
+        cpu: 50m
+        memory: 100Mi
+
+    replicas: 1
+
+    revisionHistoryLimit: null
+
+    keda:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 1
+      pollingInterval: 30
+      triggerType: cpu
+      metricType: Utilization
+      value: "50"
+      containerName: ""
+
+    hpa:
+      enabled: false
+      annotations: {}
+      minReplicas: 1
+      maxReplicas: 1
+      targetCPUUtilizationPercentage: 50
+
+    vpa:
+      enabled: false
+      controlledResources: []
+      maxAllowed: {}
+      minAllowed: {}
+      updatePolicy:
+        updateMode: Auto
+
+    hostAliases: []
+
+    livenessProbe:
+      path: "/api/public/health"
+      initialDelaySeconds: 20
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+
+    readinessProbe:
+      path: "/api/public/ready"
+      initialDelaySeconds: 20
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+
+    pdb:
+      create: false
+      minAvailable: ""
+      maxUnavailable: ""
+
+  # ==========================================================
+  # Worker
+  # ==========================================================
+
+  worker:
+
+    hostAliases: []
+
+    image:
+      repository: docker.langfuse.com/langfuse/langfuse-worker
+      tag: null
+      pullPolicy: null
+      pullSecrets: null
+
+    deployment:
+      additionalLabels: {}
+      annotations: {}
+      strategy: {}
+
+    pod:
+      annotations: {}
+      labels: {}
+      nodeSelector: null
+      tolerations: null
+      affinity: null
+      topologySpreadConstraints: null
+      extraContainers: []
+      additionalEnv: []
+      additionalEnvFrom: []
+
+    resources:
+      limits:
+        cpu: 100m
+        memory: 200Mi
+      requests:
+        cpu: 50m
+        memory: 100Mi
+
+    replicas: 1
+
+    revisionHistoryLimit: null
+
+    keda:
+      enabled: false
+      minReplicas: 1
+      maxReplicas: 1
+      pollingInterval: 30
+      triggerType: cpu
+      metricType: Utilization
+      value: "50"
+      containerName: ""
+
+    hpa:
+      enabled: false
+      annotations: {}
+      minReplicas: 1
+      maxReplicas: 1
+      targetCPUUtilizationPercentage: 50
+
+    vpa:
+      enabled: false
+      controlledResources: []
+      maxAllowed: {}
+      minAllowed: {}
+      updatePolicy:
+        updateMode: Auto
+
+    pdb:
+      create: false
+      minAvailable: ""
+      maxUnavailable: ""
+
+    livenessProbe:
+      initialDelaySeconds: 20
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+
+    readinessProbe:
+      initialDelaySeconds: 20
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+
+  allowV1Upgrade: false
+
+  # ==========================================================
+  # NextAuth
+  # ==========================================================
+
+  nextauth:
+    url: "http://langfuse.pratz.space"
+
+    secret:
+      value: ""
+      secretKeyRef:
+        name: ""
+        key: ""
+
+
+# ============================================================
+# PostgreSQL
+# Existing PostgreSQL Service:
+# postgres-service.db.svc.cluster.local:5432
+# ============================================================
+
+postgresql:
+
+  # DO NOT deploy bundled PostgreSQL
+  deploy: false
+
+  host: "postgres-service.db.svc.cluster.local"
+
+  port: 5432
+
+  args: ""
+
+  directUrl: ""
+
+  shadowDatabaseUrl: ""
+
+  auth:
+
+    username: "admin"
+
+    password: "admin"
+
+    existingSecret: ""
+
+    secretKeys:
+      userPasswordKey: password
+      adminPasswordKey: postgres-password
+
+    database: "langfuse"
+
+    args: ""
+
+  migration:
+    autoMigrate: true
+
+
+# ============================================================
+# Redis / Valkey
+# Existing Redis Service:
+# redis.db.svc.cluster.local:6379
+# ============================================================
+
+redis:
+
+  # DO NOT deploy bundled Redis/Valkey
+  deploy: false
+
+  host: "redis.db.svc.cluster.local"
+
+  port: 6379
+
+  tls:
+    enabled: false
+    caPath: ""
+    certPath: ""
+    keyPath: ""
+
+  auth:
+
+    # Change to true if your Redis requires authentication
+    enabled: false
+
+    username: ""
+
+    password: ""
+
+    existingSecret: ""
+
+    existingSecretPasswordKey: ""
+
+    database: 0
+
+  cluster:
+    enabled: false
+    nodes: []
+
+  sentinel:
+    enabled: false
+    masterName: ""
+    nodes: ""
+    username: ""
+    password: ""
+    existingSecret: ""
+    existingSecretPasswordKey: ""
+
+  replica:
+    enabled: false
+    replicas: 0
+
+    persistence:
+      size: 8Gi
+      storageClass: ""
+      accessModes:
+        - ReadWriteOnce
+
+    service:
+      enabled: true
+      type: ClusterIP
+      port: 6379
+
+  dataStorage:
+    enabled: false
+    requestedSize: 8Gi
+    className: ""
+    accessModes:
+      - ReadWriteOnce
+    keepPvc: false
+
+  valkeyConfig: |
+    maxmemory-policy noeviction
+
+  image:
+    registry: docker.io
+    repository: valkey/valkey
+    tag: "8.0"
+    pullPolicy: IfNotPresent
+
+  service:
+    type: ClusterIP
+    port: 6379
+
+  resources:
+    limits:
+      cpu: 100m
+      memory: 200Mi
+    requests:
+      cpu: 50m
+      memory: 100Mi
+
+  podSecurityContext:
+    fsGroup: 1000
+    runAsUser: 1000
+    runAsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+
+  metrics:
+    enabled: false
+
+
+# ============================================================
+# ClickHouse
+# ============================================================
+
+clickhouse:
+
+  deploy: true
+
+  host: ""
+
+  httpPort: 8123
+
+  nativePort: 9000
+
+  database: default
+
+  crdCheck: true
+
+  auth:
+    username: default
+    password: ""
+    existingSecret: ""
+    existingSecretKey: ""
+
+  migration:
+    url: ""
+    ssl: false
+    autoMigrate: true
+
+  cluster:
+
+    enabled: true
+
+    replicas: 1
+
+    image:
+      repository: clickhouse/clickhouse-server
+      tag: "26.4"
+
+    storage:
+      size: 100Gi
+      className: ""
+      accessModes:
+        - ReadWriteOnce
+
+    resources:
+      limits:
+        cpu: 100m
+        memory: 200Mi
+      requests:
+        cpu: 50m
+        memory: 100Mi
+
+    nodeSelector: {}
+
+    tolerations: []
+
+    affinity: {}
+
+    settings: {}
+
+    profileSettings: {}
+
+  # ==========================================================
+  # ClickHouse Keeper
+  # ==========================================================
+
+  keeper:
+
+    enabled: true
+
+    replicas: 1
+
+    image:
+      repository: clickhouse/clickhouse-keeper
+      tag: "26.4"
+
+    storage:
+      size: 20Gi
+      className: ""
+      accessModes:
+        - ReadWriteOnce
+
+    resources:
+      limits:
+        cpu: 100m
+        memory: 200Mi
+      requests:
+        cpu: 50m
+        memory: 100Mi
+
+    nodeSelector: {}
+
+    tolerations: []
+
+    affinity: {}
+
+
+# ============================================================
+# S3 / Object Storage - SeaweedFS
+# ============================================================
+
+s3:
+
+  deploy: true
+
+  storageProvider: "s3"
+
+  bucket: "langfuse"
+
+  region: "auto"
+
+  endpoint: ""
+
+  forcePathStyle: true
+
+  accessKeyId:
+    value: ""
+    secretKeyRef:
+      name: ""
+      key: ""
+
+  secretAccessKey:
+    value: ""
+    secretKeyRef:
+      name: ""
+      key: ""
+
+  gcs:
+    credentials:
+      value: ""
+      secretKeyRef:
+        name: ""
+        key: ""
+
+  concurrency:
+    reads: 50
+    writes: 50
+
+  eventUpload:
+    bucket: ""
+    prefix: ""
+    region: ""
+    endpoint: ""
+    forcePathStyle: null
+
+    accessKeyId:
+      value: ""
+      secretKeyRef:
+        name: ""
+        key: ""
+
+    secretAccessKey:
+      value: ""
+      secretKeyRef:
+        name: ""
+        key: ""
+
+  batchExport:
+    enabled: true
+    bucket: ""
+    prefix: ""
+    region: ""
+    endpoint: ""
+    forcePathStyle: null
+
+    accessKeyId:
+      value: ""
+      secretKeyRef:
+        name: ""
+        key: ""
+
+    secretAccessKey:
+      value: ""
+      secretKeyRef:
+        name: ""
+        key: ""
+
+  mediaUpload:
+    enabled: true
+    bucket: ""
+    prefix: ""
+    region: ""
+    endpoint: ""
+    forcePathStyle: null
+
+    accessKeyId:
+      value: ""
+      secretKeyRef:
+        name: ""
+        key: ""
+
+    secretAccessKey:
+      value: ""
+      secretKeyRef:
+        name: ""
+        key: ""
+
+    maxContentLength: 1000000000
+
+    downloadUrlExpirySeconds: 3600
+
+  auth:
+
+    rootUser: "langfuse"
+
+    rootPassword: ""
+
+    existingSecret: ""
+
+    rootUserSecretKey: ""
+
+    rootPasswordSecretKey: ""
+
+  defaultBuckets: "langfuse"
+
+  master:
+    enabled: false
+
+  volume:
+    enabled: false
+
+  filer:
+    enabled: false
+
+  s3:
+    enabled: false
+
+  # Single SeaweedFS pod
+  allInOne:
+
+    enabled: true
+
+    image:
+      registry: docker.io
+      repository: chrislusf/seaweedfs
+      tag: "3.95"
+      pullPolicy: IfNotPresent
+
+    s3:
+      enabled: true
+      port: 8333
+      enableAuth: true
+      existingConfigSecret: "langfuse-s3-auth"
+
+      createBuckets:
+        - name: langfuse
+
+      createBucketsHook:
+        resources: {}
+
+    data:
+      type: persistentVolumeClaim
+      size: 50Gi
+      storageClass: ""
+      accessModes:
+        - ReadWriteOnce
+
+  service:
+    type: ClusterIP
+    internalTrafficPolicy: Cluster
+
+  resources:
+    limits:
+      cpu: 100m
+      memory: 200Mi
+    requests:
+      cpu: 50m
+      memory: 100Mi
+
+
+# ============================================================
+# Additional manifests
+# ============================================================
+
+extraManifests: []
