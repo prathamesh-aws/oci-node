@@ -1,0 +1,21 @@
+apiVersion: falcon.crowdstrike.com/v1alpha1
+kind: FalconDeployment
+metadata:
+  labels:
+    crowdstrike.com/component: sample
+    crowdstrike.com/created-by: falcon-operator
+    crowdstrike.com/instance: falcondeployment-sample
+    crowdstrike.com/managed-by: kustomize
+    crowdstrike.com/name: falcon-deployment
+    crowdstrike.com/part-of: Falcon
+    crowdstrike.com/provider: crowdstrike
+  name: falcon-deployment
+spec:
+  falcon_api:
+    client_id: 63324ee80a15406cbe5af3c1abf2026d
+    client_secret: xFW3rnhNY1KcSH0uD8ZX4eymjTU5v97kqIOfzs26
+    cloud_region: autodiscover
+  deployAdmissionController: true
+  deployNodeSensor: true 
+  deployImageAnalyzer: true
+  deployContainerSensor: false

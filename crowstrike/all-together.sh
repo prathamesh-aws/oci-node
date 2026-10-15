@@ -18,7 +18,7 @@ set -euo pipefail
 
 RELEASE_NAME="falcon-platform"
 NAMESPACE="falcon-platform"
-REGION="us-2"
+REGION="us-1"
 
 # Supported values:
 #   node

@@ -1,0 +1,58 @@
+services:
+  evolution-go:
+    image: evoapicloud/evolution-go:latest
+    container_name: evolution-go
+    restart: unless-stopped
+
+    ports:
+      - "4000:4000"
+
+    environment:
+      # Server
+      SERVER_PORT: "4000"
+      CLIENT_NAME: "evolution"
+
+      # Security
+      GLOBAL_API_KEY: "CHANGE_THIS_TO_A_LONG_RANDOM_SECRET"
+
+      # PostgreSQL
+      POSTGRES_AUTH_DB: "postgresql://admin:admin@10.0.0.49:5432/evogo_auth?sslmode=disable"
+      POSTGRES_USERS_DB: "postgresql://admin:admin@10.0.0.49:5432/evogo_users?sslmode=disable"
+
+      # Message persistence
+      DATABASE_SAVE_MESSAGES: "true"
+
+      # Logging
+      WADEBUG: "INFO"
+      LOGTYPE: "console"
+
+      # Connection
+      CONNECT_ON_STARTUP: "false"
+      WEBHOOK_FILES: "true"
+
+      # MinIO
+      MINIO_ENABLED: "true"
+      MINIO_ENDPOINT: "10.0.0.49:9000"
+      MINIO_ACCESS_KEY: "minioadmin"
+      MINIO_SECRET_KEY: "minioadmin"
+      MINIO_BUCKET: "evolution-media"
+      MINIO_USE_SSL: "false"
+      MINIO_REGION: "us-east-1"
+
+      # Events
+      EVENT_IGNORE_GROUP: "false"
+      EVENT_IGNORE_STATUS: "true"
+
+      # QR
+      QRCODE_MAX_COUNT: "5"
+
+      # User verification
+      CHECK_USER_EXISTS: "true"
+
+    volumes:
+      - evolution_data:/app/dbdata
+      - evolution_logs:/app/logs
+
+volumes:
+  evolution_data:
+  evolution_logs:

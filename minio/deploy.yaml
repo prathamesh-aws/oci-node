@@ -1,15 +1,15 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: minio-pvc
-  namespace: minio
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
-  storageClassName: local-path
+#apiVersion: v1
+#kind: PersistentVolumeClaim
+#metadata:
+#  name: minio-pvc
+#  namespace: minio
+##spec:
+#  accessModes:
+#    - ReadWriteOnce
+#  resources:
+#    requests:
+#      storage: 5Gi
+#  storageClassName: local-path
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -48,11 +48,11 @@ spec:
             periodSeconds: 20
           resources:
             requests:
-              memory: "500Mi"
-              cpu: "1000m"
+              memory: "300Mi"
+              cpu: "500m"
             limits:
-              memory: "700Mi"
-              cpu: "1500m"
+              memory: "300Mi"
+              cpu: "500m"
           volumeMounts:
             - mountPath: /data
               name: data
